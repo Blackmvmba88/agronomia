@@ -13,27 +13,32 @@ let db;
  */
 function initializeFirebase() {
   try {
-    // Inicializar Firebase Admin
-    if (process.env.FIREBASE_PROJECT_ID) {
-      const serviceAccount = {
-        projectId: process.env.FIREBASE_PROJECT_ID,
-        clientEmail: process.env.FIREBASE_CLIENT_EMAIL,
-        privateKey: process.env.FIREBASE_PRIVATE_KEY?.replace(/\\n/g, '\n')
-      };
-
-      admin.initializeApp({
-        credential: admin.credential.cert(serviceAccount)
-      });
-
-      db = admin.firestore();
-      console.log('✅ Firebase Firestore inicializado');
-    } else {
-      console.warn('⚠️  Firebase no configurado. Usando modo local.');
-      // En desarrollo sin Firebase, usar datos en memoria
+    // Validar que las credenciales requeridas estén presentes
+    if (!process.env.FIREBASE_PROJECT_ID || 
+        !process.env.FIREBASE_CLIENT_EMAIL || 
+        !process.env.FIREBASE_PRIVATE_KEY) {
+      console.warn('⚠️  Firebase credentials not configured. Using local mode.');
+      console.warn('⚠️  Set FIREBASE_PROJECT_ID, FIREBASE_CLIENT_EMAIL, and FIREBASE_PRIVATE_KEY to enable Firebase.');
       db = null;
+      return;
     }
+
+    // Inicializar Firebase Admin
+    const serviceAccount = {
+      projectId: process.env.FIREBASE_PROJECT_ID,
+      clientEmail: process.env.FIREBASE_CLIENT_EMAIL,
+      privateKey: process.env.FIREBASE_PRIVATE_KEY.replace(/\\n/g, '\n')
+    };
+
+    admin.initializeApp({
+      credential: admin.credential.cert(serviceAccount)
+    });
+
+    db = admin.firestore();
+    console.log('✅ Firebase Firestore inicializado');
   } catch (error) {
     console.error('❌ Error inicializando Firebase:', error.message);
+    console.warn('⚠️  Falling back to local mode. Data will not be persisted.');
     db = null;
   }
 }

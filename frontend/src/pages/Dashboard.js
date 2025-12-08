@@ -33,6 +33,9 @@ function Dashboard() {
     pump: false,
     led: false
   });
+  
+  // Device ID - can be made configurable via environment variable or settings
+  const deviceId = process.env.REACT_APP_DEVICE_ID || 'ESP32-001';
 
   useEffect(() => {
     loadData();
@@ -62,7 +65,7 @@ function Dashboard() {
   const handleActuatorToggle = async (actuator) => {
     try {
       const newState = !actuators[actuator];
-      await controlActuator('ESP32-001', actuator, newState);
+      await controlActuator(deviceId, actuator, newState);
       setActuators(prev => ({
         ...prev,
         [actuator]: newState

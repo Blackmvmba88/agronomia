@@ -30,10 +30,19 @@ router.post('/control',
       // Guardar estado del actuador
       const savedState = await saveActuatorState(deviceId, actuator, state);
       
-      // TODO: En una implementación completa, aquí se enviaría un comando
-      // al ESP32 vía MQTT o similar para cambiar el estado del actuador
+      // NOTE: En una implementación completa, aquí se enviaría un comando
+      // al ESP32 vía MQTT, WebSocket o HTTP callback para cambiar el estado del actuador.
+      // Por ahora, el ESP32 debe consultar periódicamente el estado o implementar
+      // un mecanismo de comunicación bidireccional.
+      // 
+      // Opciones de implementación:
+      // 1. MQTT: Publicar comando en topic específico del dispositivo
+      // 2. WebSocket: Enviar comando en tiempo real
+      // 3. Polling: ESP32 consulta estado cada N segundos
+      // 4. HTTP Callback: Enviar POST al ESP32 si tiene IP conocida
       
       console.log(`🔧 Control de actuador: ${actuator} = ${state ? 'ON' : 'OFF'} (${deviceId})`);
+      console.log(`⚠️  Estado guardado en base de datos. ESP32 debe sincronizar estado.`);
       
       res.json({
         status: 'success',
