@@ -21,9 +21,9 @@ services:
     image: postgres:15-alpine
     container_name: agronomia-db
     environment:
-      POSTGRES_USER: agronomia
-      POSTGRES_PASSWORD: agronomia_secure_password
-      POSTGRES_DB: agronomia
+      POSTGRES_USER: ${POSTGRES_USER:-agronomia}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-CHANGE_THIS_PASSWORD}
+      POSTGRES_DB: ${POSTGRES_DB:-agronomia}
     ports:
       - "5432:5432"
     volumes:
@@ -59,9 +59,10 @@ services:
       dockerfile: Dockerfile
     container_name: agronomia-api
     environment:
-      DATABASE_URL: postgresql://agronomia:agronomia_secure_password@postgres:5432/agronomia
+      DATABASE_URL: postgresql://${POSTGRES_USER:-agronomia}:${POSTGRES_PASSWORD:-CHANGE_THIS_PASSWORD}@postgres:5432/${POSTGRES_DB:-agronomia}
       MQTT_BROKER: mosquitto
       MQTT_PORT: 1883
+      ALLOWED_ORIGINS: ${ALLOWED_ORIGINS:-http://localhost:3000}
     ports:
       - "8000:8000"
     volumes:

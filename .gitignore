@@ -54,8 +54,11 @@ docker/mosquitto/log/*.log
 # Environment variables
 .env
 .env.local
+.env.*.local
+backend/api/.env
 config.h
 !config.h.example
+!.env.example
 
 # Docker
 docker/mosquitto/data/

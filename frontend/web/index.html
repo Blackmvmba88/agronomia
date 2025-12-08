@@ -354,8 +354,10 @@
     </div>
 
     <script>
-        // Configuration
-        const API_URL = 'http://localhost:8000';
+        // Configuration - Use environment or default to localhost
+        const API_URL = window.location.hostname === 'localhost' 
+            ? 'http://localhost:8000' 
+            : `${window.location.protocol}//${window.location.hostname}:8000`;
         const DEVICE_ID = 'ESP32-001';
         const UPDATE_INTERVAL = 5000; // 5 seconds
 
@@ -553,7 +555,11 @@
             
             // Try WebSocket connection for real-time updates
             try {
-                const ws = new WebSocket('ws://localhost:8000/ws');
+                const wsProtocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
+                const wsUrl = window.location.hostname === 'localhost'
+                    ? 'ws://localhost:8000/ws'
+                    : `${wsProtocol}//${window.location.hostname}:8000/ws`;
+                const ws = new WebSocket(wsUrl);
                 ws.onmessage = (event) => {
                     const data = JSON.parse(event.data);
                     if (data[DEVICE_ID]) {

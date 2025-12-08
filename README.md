@@ -94,27 +94,33 @@ agronomia/
    cd agronomia
    ```
 
-2. **Set up backend**
+2. **Configure environment variables**
+   ```bash
+   cp .env.example .env
+   # Edit .env and update all passwords and secrets
+   ```
+
+3. **Set up backend**
    ```bash
    cd backend/api
    pip install -r requirements.txt
    python main.py
    ```
 
-3. **Set up frontend**
+4. **Set up frontend**
    ```bash
    cd frontend/web
    npm install
    npm start
    ```
 
-4. **Flash firmware**
+5. **Flash firmware**
    ```bash
    cd firmware/esp32
    # Follow instructions in firmware/README.md
    ```
 
-5. **Train AI models**
+6. **Train AI models**
    ```bash
    cd ai-ml/training
    python train_irrigation_model.py

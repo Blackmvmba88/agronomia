@@ -11,6 +11,7 @@ from typing import List, Optional, Dict, Any
 from datetime import datetime, timedelta
 import asyncio
 import json
+import os
 from collections import defaultdict
 
 # Database imports (using SQLAlchemy)
@@ -29,17 +30,22 @@ app = FastAPI(
 )
 
 # CORS middleware
+# Configure allowed origins based on environment
+import os
+ALLOWED_ORIGINS = os.getenv("ALLOWED_ORIGINS", "http://localhost:3000,http://localhost:8000").split(",")
+
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],  # Configure for production
+    allow_origins=ALLOWED_ORIGINS,
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
 )
 
 # Database setup
-DATABASE_URL = "sqlite:///./agronomia.db"  # Use PostgreSQL in production
-engine = create_engine(DATABASE_URL, connect_args={"check_same_thread": False})
+DATABASE_URL = os.getenv("DATABASE_URL", "sqlite:///./agronomia.db")
+connect_args = {"check_same_thread": False} if "sqlite" in DATABASE_URL else {}
+engine = create_engine(DATABASE_URL, connect_args=connect_args)
 SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
 Base = declarative_base()
 
@@ -143,9 +149,9 @@ def get_db():
         db.close()
 
 # MQTT Configuration
-MQTT_BROKER = "localhost"
-MQTT_PORT = 1883
-MQTT_TOPIC = "agronomia/devices/+/data"
+MQTT_BROKER = os.getenv("MQTT_BROKER", "localhost")
+MQTT_PORT = int(os.getenv("MQTT_PORT", "1883"))
+MQTT_TOPIC = os.getenv("MQTT_TOPIC", "agronomia/devices/+/data")
 
 mqtt_client = mqtt.Client()
 
