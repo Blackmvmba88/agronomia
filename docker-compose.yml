@@ -40,10 +40,10 @@ services:
     environment:
       DOCKER_INFLUXDB_INIT_MODE: setup
       DOCKER_INFLUXDB_INIT_USERNAME: admin
-      DOCKER_INFLUXDB_INIT_PASSWORD: agronomia_admin
+      DOCKER_INFLUXDB_INIT_PASSWORD: ${INFLUXDB_ADMIN_PASSWORD:-CHANGE_THIS_PASSWORD}
       DOCKER_INFLUXDB_INIT_ORG: agronomia
       DOCKER_INFLUXDB_INIT_BUCKET: sensors
-      DOCKER_INFLUXDB_INIT_ADMIN_TOKEN: agronomia_secret_token
+      DOCKER_INFLUXDB_INIT_ADMIN_TOKEN: ${INFLUXDB_TOKEN:-CHANGE_THIS_TOKEN}
     ports:
       - "8086:8086"
     volumes:
@@ -94,7 +94,7 @@ services:
     container_name: agronomia-grafana
     environment:
       GF_SECURITY_ADMIN_USER: admin
-      GF_SECURITY_ADMIN_PASSWORD: agronomia
+      GF_SECURITY_ADMIN_PASSWORD: ${GRAFANA_PASSWORD:-CHANGE_THIS_PASSWORD}
       GF_INSTALL_PLUGINS: grafana-clock-panel,grafana-simple-json-datasource
     ports:
       - "3001:3000"
