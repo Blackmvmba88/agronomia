@@ -40,3 +40,6 @@ firmware/config/config.h
 # Firebase
 .firebase/
 firebase-debug.log
+
+# CodeQL
+_codeql_detected_source_root
