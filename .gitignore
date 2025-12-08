@@ -1,0 +1,98 @@
+# .gitignore for Agronomia
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+venv/
+env/
+ENV/
+*.egg-info/
+dist/
+build/
+*.egg
+
+# Node.js
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+package-lock.json
+yarn.lock
+
+# IDEs
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+.DS_Store
+
+# AI/ML
+*.h5
+*.pkl
+*.onnx
+models/*.h5
+models/*.pkl
+ai-ml/models/*.h5
+ai-ml/models/*.pkl
+*.ipynb_checkpoints/
+
+# Database
+*.db
+*.sqlite
+*.sqlite3
+agronomia.db
+
+# Logs
+*.log
+logs/
+docker/mosquitto/log/*.log
+
+# Environment variables
+.env
+.env.local
+config.h
+!config.h.example
+
+# Docker
+docker/mosquitto/data/
+docker/mosquitto/log/
+docker/grafana/
+
+# Build artifacts
+*.o
+*.a
+*.hex
+*.elf
+*.bin
+.pio/
+.pioenvs/
+.piolibdeps/
+
+# Temporary files
+tmp/
+temp/
+*.tmp
+*.bak
+
+# OS files
+Thumbs.db
+.DS_Store
+
+# Test coverage
+.coverage
+htmlcov/
+.pytest_cache/
+
+# Documentation builds
+docs/_build/
+site/
+
+# Secrets
+*.pem
+*.key
+*.cert
+secrets/

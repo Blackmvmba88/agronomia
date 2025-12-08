@@ -1,0 +1,576 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Agronomia - Hydroponic Monitoring Dashboard</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: #333;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        header {
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+
+        h1 {
+            color: #667eea;
+            font-size: 2.5em;
+            margin-bottom: 10px;
+        }
+
+        .subtitle {
+            color: #666;
+            font-size: 1.1em;
+        }
+
+        .status-bar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: white;
+            padding: 15px 20px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+
+        .status-item {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .status-dot {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            animation: pulse 2s infinite;
+        }
+
+        .status-online { background: #10b981; }
+        .status-offline { background: #ef4444; }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+            margin-bottom: 20px;
+        }
+
+        .card {
+            background: white;
+            border-radius: 10px;
+            padding: 20px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            transition: transform 0.2s;
+        }
+
+        .card:hover {
+            transform: translateY(-5px);
+        }
+
+        .card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+
+        .card-title {
+            font-size: 1.2em;
+            font-weight: 600;
+            color: #333;
+        }
+
+        .card-icon {
+            font-size: 2em;
+        }
+
+        .sensor-value {
+            font-size: 3em;
+            font-weight: bold;
+            color: #667eea;
+            margin: 10px 0;
+        }
+
+        .sensor-unit {
+            color: #999;
+            font-size: 0.8em;
+        }
+
+        .sensor-status {
+            padding: 5px 10px;
+            border-radius: 20px;
+            font-size: 0.85em;
+            font-weight: 600;
+        }
+
+        .status-optimal { background: #d1fae5; color: #065f46; }
+        .status-warning { background: #fed7aa; color: #92400e; }
+        .status-critical { background: #fecaca; color: #991b1b; }
+
+        .chart-container {
+            background: white;
+            border-radius: 10px;
+            padding: 20px;
+            margin-bottom: 20px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            height: 400px;
+        }
+
+        .alerts-panel {
+            background: white;
+            border-radius: 10px;
+            padding: 20px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+
+        .alert-item {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            padding: 15px;
+            margin-bottom: 10px;
+            border-radius: 8px;
+            border-left: 4px solid;
+        }
+
+        .alert-warning { 
+            background: #fef3c7; 
+            border-color: #f59e0b; 
+        }
+
+        .alert-critical { 
+            background: #fee2e2; 
+            border-color: #ef4444; 
+        }
+
+        .alert-info { 
+            background: #dbeafe; 
+            border-color: #3b82f6; 
+        }
+
+        .loading {
+            text-align: center;
+            padding: 40px;
+            color: white;
+        }
+
+        .ai-insights {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border-radius: 10px;
+            padding: 20px;
+            margin-bottom: 20px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+
+        .ai-insights h3 {
+            margin-bottom: 15px;
+        }
+
+        .recommendation {
+            background: rgba(255,255,255,0.1);
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 10px;
+        }
+
+        footer {
+            text-align: center;
+            color: white;
+            padding: 20px;
+            margin-top: 40px;
+        }
+
+        @media (max-width: 768px) {
+            .grid {
+                grid-template-columns: 1fr;
+            }
+            
+            h1 {
+                font-size: 1.8em;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>🌱 Agronomia</h1>
+            <p class="subtitle">Autonomous Hydroponic Monitoring Platform</p>
+        </header>
+
+        <div class="status-bar">
+            <div class="status-item">
+                <span class="status-dot status-online"></span>
+                <span><strong>System Status:</strong> <span id="systemStatus">Online</span></span>
+            </div>
+            <div class="status-item">
+                <span><strong>Last Update:</strong> <span id="lastUpdate">--:--:--</span></span>
+            </div>
+            <div class="status-item">
+                <span><strong>Device:</strong> <span id="deviceId">ESP32-001</span></span>
+            </div>
+        </div>
+
+        <div class="ai-insights">
+            <h3>🤖 AI Insights & Recommendations</h3>
+            <div id="aiRecommendations">
+                <div class="recommendation">
+                    <strong>Irrigation Prediction:</strong> Next watering recommended in 3.5 hours (optimal soil moisture)
+                </div>
+                <div class="recommendation">
+                    <strong>Nutrient Optimization:</strong> Consider increasing EC by 100 μS/cm for better growth in current stage
+                </div>
+                <div class="recommendation">
+                    <strong>Harvest Prediction:</strong> Estimated 18 days to optimal harvest based on current growth metrics
+                </div>
+            </div>
+        </div>
+
+        <div class="grid">
+            <div class="card">
+                <div class="card-header">
+                    <span class="card-title">pH Level</span>
+                    <span class="card-icon">🧪</span>
+                </div>
+                <div class="sensor-value" id="phValue">--</div>
+                <span class="sensor-unit">pH</span>
+                <div style="margin-top: 10px;">
+                    <span class="sensor-status status-optimal" id="phStatus">Optimal</span>
+                </div>
+            </div>
+
+            <div class="card">
+                <div class="card-header">
+                    <span class="card-title">Water Temperature</span>
+                    <span class="card-icon">🌡️</span>
+                </div>
+                <div class="sensor-value" id="waterTempValue">--</div>
+                <span class="sensor-unit">°C</span>
+                <div style="margin-top: 10px;">
+                    <span class="sensor-status status-optimal" id="waterTempStatus">Optimal</span>
+                </div>
+            </div>
+
+            <div class="card">
+                <div class="card-header">
+                    <span class="card-title">Air Temperature</span>
+                    <span class="card-icon">🌡️</span>
+                </div>
+                <div class="sensor-value" id="airTempValue">--</div>
+                <span class="sensor-unit">°C</span>
+                <div style="margin-top: 10px;">
+                    <span class="sensor-status status-optimal" id="airTempStatus">Optimal</span>
+                </div>
+            </div>
+
+            <div class="card">
+                <div class="card-header">
+                    <span class="card-title">Humidity</span>
+                    <span class="card-icon">💧</span>
+                </div>
+                <div class="sensor-value" id="humidityValue">--</div>
+                <span class="sensor-unit">%</span>
+                <div style="margin-top: 10px;">
+                    <span class="sensor-status status-optimal" id="humidityStatus">Optimal</span>
+                </div>
+            </div>
+
+            <div class="card">
+                <div class="card-header">
+                    <span class="card-title">EC / TDS</span>
+                    <span class="card-icon">⚗️</span>
+                </div>
+                <div class="sensor-value" id="ecValue">--</div>
+                <span class="sensor-unit">μS/cm</span>
+                <div style="margin-top: 5px;">
+                    <small>TDS: <span id="tdsValue">--</span> ppm</small>
+                </div>
+                <div style="margin-top: 10px;">
+                    <span class="sensor-status status-optimal" id="ecStatus">Optimal</span>
+                </div>
+            </div>
+
+            <div class="card">
+                <div class="card-header">
+                    <span class="card-title">Light Intensity</span>
+                    <span class="card-icon">☀️</span>
+                </div>
+                <div class="sensor-value" id="luxValue">--</div>
+                <span class="sensor-unit">lux</span>
+                <div style="margin-top: 10px;">
+                    <span class="sensor-status status-optimal" id="luxStatus">Optimal</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="chart-container">
+            <canvas id="trendChart"></canvas>
+        </div>
+
+        <div class="alerts-panel">
+            <h3 style="margin-bottom: 15px;">🔔 Recent Alerts</h3>
+            <div id="alertsList">
+                <div class="alert-item alert-info">
+                    <span>ℹ️</span>
+                    <div>
+                        <strong>System Started</strong><br>
+                        <small>All sensors initialized successfully</small>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <footer>
+            <p>Built with ❤️ for sustainable agriculture | Agronomia v1.0.0</p>
+        </footer>
+    </div>
+
+    <script>
+        // Configuration
+        const API_URL = 'http://localhost:8000';
+        const DEVICE_ID = 'ESP32-001';
+        const UPDATE_INTERVAL = 5000; // 5 seconds
+
+        // Chart configuration
+        let trendChart;
+        const maxDataPoints = 20;
+        const chartData = {
+            labels: [],
+            datasets: [
+                {
+                    label: 'pH',
+                    data: [],
+                    borderColor: 'rgb(75, 192, 192)',
+                    backgroundColor: 'rgba(75, 192, 192, 0.1)',
+                    yAxisID: 'y',
+                },
+                {
+                    label: 'Temperature (°C)',
+                    data: [],
+                    borderColor: 'rgb(255, 99, 132)',
+                    backgroundColor: 'rgba(255, 99, 132, 0.1)',
+                    yAxisID: 'y1',
+                },
+                {
+                    label: 'Humidity (%)',
+                    data: [],
+                    borderColor: 'rgb(54, 162, 235)',
+                    backgroundColor: 'rgba(54, 162, 235, 0.1)',
+                    yAxisID: 'y2',
+                }
+            ]
+        };
+
+        // Initialize chart
+        function initChart() {
+            const ctx = document.getElementById('trendChart').getContext('2d');
+            trendChart = new Chart(ctx, {
+                type: 'line',
+                data: chartData,
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    interaction: {
+                        mode: 'index',
+                        intersect: false,
+                    },
+                    plugins: {
+                        title: {
+                            display: true,
+                            text: 'Real-Time Sensor Trends',
+                            font: { size: 16 }
+                        },
+                        legend: {
+                            display: true,
+                            position: 'top'
+                        }
+                    },
+                    scales: {
+                        y: {
+                            type: 'linear',
+                            display: true,
+                            position: 'left',
+                            title: { display: true, text: 'pH' }
+                        },
+                        y1: {
+                            type: 'linear',
+                            display: true,
+                            position: 'right',
+                            title: { display: true, text: 'Temperature (°C)' },
+                            grid: { drawOnChartArea: false }
+                        },
+                        y2: {
+                            type: 'linear',
+                            display: false,
+                            position: 'right',
+                            title: { display: true, text: 'Humidity (%)' }
+                        }
+                    }
+                }
+            });
+        }
+
+        // Update sensor display
+        function updateSensorDisplay(data) {
+            const sensors = data.sensors || {};
+            
+            // Update values
+            document.getElementById('phValue').textContent = sensors.ph?.toFixed(2) || '--';
+            document.getElementById('waterTempValue').textContent = sensors.water_temp?.toFixed(1) || '--';
+            document.getElementById('airTempValue').textContent = sensors.air_temp?.toFixed(1) || '--';
+            document.getElementById('humidityValue').textContent = sensors.humidity?.toFixed(1) || '--';
+            document.getElementById('ecValue').textContent = Math.round(sensors.ec) || '--';
+            document.getElementById('tdsValue').textContent = Math.round(sensors.tds) || '--';
+            document.getElementById('luxValue').textContent = sensors.lux || '--';
+
+            // Update statuses
+            updateStatus('ph', sensors.ph, 5.5, 6.5);
+            updateStatus('waterTemp', sensors.water_temp, 18, 26);
+            updateStatus('airTemp', sensors.air_temp, 18, 26);
+            updateStatus('humidity', sensors.humidity, 60, 70);
+            updateStatus('ec', sensors.ec, 1000, 2500);
+            updateStatus('lux', sensors.lux, 10000, 50000);
+
+            // Update last update time
+            const now = new Date();
+            document.getElementById('lastUpdate').textContent = now.toLocaleTimeString();
+            
+            // Update chart
+            updateChart(sensors);
+        }
+
+        // Update status indicator
+        function updateStatus(sensor, value, min, max) {
+            const statusElement = document.getElementById(`${sensor}Status`);
+            if (!statusElement || value === undefined) return;
+
+            if (value >= min && value <= max) {
+                statusElement.className = 'sensor-status status-optimal';
+                statusElement.textContent = 'Optimal';
+            } else if (value < min * 0.9 || value > max * 1.1) {
+                statusElement.className = 'sensor-status status-critical';
+                statusElement.textContent = 'Critical';
+            } else {
+                statusElement.className = 'sensor-status status-warning';
+                statusElement.textContent = 'Warning';
+            }
+        }
+
+        // Update chart with new data
+        function updateChart(sensors) {
+            const timestamp = new Date().toLocaleTimeString();
+            
+            chartData.labels.push(timestamp);
+            chartData.datasets[0].data.push(sensors.ph);
+            chartData.datasets[1].data.push(sensors.water_temp);
+            chartData.datasets[2].data.push(sensors.humidity);
+
+            // Keep only last N data points
+            if (chartData.labels.length > maxDataPoints) {
+                chartData.labels.shift();
+                chartData.datasets.forEach(dataset => dataset.data.shift());
+            }
+
+            trendChart.update();
+        }
+
+        // Fetch latest sensor data
+        async function fetchSensorData() {
+            try {
+                const response = await fetch(`${API_URL}/api/sensors/latest/${DEVICE_ID}`);
+                if (response.ok) {
+                    const data = await response.json();
+                    updateSensorDisplay(data);
+                    document.getElementById('systemStatus').textContent = 'Online';
+                    document.querySelector('.status-dot').className = 'status-dot status-online';
+                }
+            } catch (error) {
+                console.error('Error fetching sensor data:', error);
+                document.getElementById('systemStatus').textContent = 'Offline';
+                document.querySelector('.status-dot').className = 'status-dot status-offline';
+                
+                // Show demo data if API is not available
+                showDemoData();
+            }
+        }
+
+        // Show demo data for demonstration
+        function showDemoData() {
+            const demoData = {
+                device_id: DEVICE_ID,
+                timestamp: Date.now(),
+                sensors: {
+                    ph: 6.2 + (Math.random() * 0.4 - 0.2),
+                    water_temp: 22 + (Math.random() * 2 - 1),
+                    air_temp: 24 + (Math.random() * 2 - 1),
+                    humidity: 65 + (Math.random() * 10 - 5),
+                    ec: 1500 + (Math.random() * 200 - 100),
+                    tds: 750 + (Math.random() * 100 - 50),
+                    lux: 25000 + (Math.random() * 5000 - 2500),
+                    full_spectrum: 30000,
+                    infrared: 5000,
+                    visible: 25000
+                }
+            };
+            updateSensorDisplay(demoData);
+        }
+
+        // Initialize application
+        function init() {
+            initChart();
+            fetchSensorData();
+            
+            // Set up periodic updates
+            setInterval(fetchSensorData, UPDATE_INTERVAL);
+            
+            // Try WebSocket connection for real-time updates
+            try {
+                const ws = new WebSocket('ws://localhost:8000/ws');
+                ws.onmessage = (event) => {
+                    const data = JSON.parse(event.data);
+                    if (data[DEVICE_ID]) {
+                        updateSensorDisplay(data[DEVICE_ID]);
+                    }
+                };
+            } catch (error) {
+                console.log('WebSocket not available, using polling');
+            }
+        }
+
+        // Start application when DOM is ready
+        if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', init);
+        } else {
+            init();
+        }
+    </script>
+</body>
+</html>
