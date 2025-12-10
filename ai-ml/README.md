@@ -95,8 +95,6 @@ print(f"Next irrigation in {prediction['hours_until_irrigation']} hours")
 print(f"Volume: {prediction['irrigation_volume_ml']} ml")
 ```
 
-### 2. Nutrient Optimization Model (Random Forest)
-**File:** `train_nutrient_model.py`
 ### 3. Nutrient Optimization Model (Random Forest)
 **File:** `train_nutrient_model.py`
 

@@ -34,7 +34,6 @@ app = FastAPI(
 
 # CORS middleware
 # Configure allowed origins based on environment
-import os
 ALLOWED_ORIGINS = os.getenv("ALLOWED_ORIGINS", "http://localhost:3000,http://localhost:8000").split(",")
 
 app.add_middleware(
@@ -508,6 +507,18 @@ async def check_thresholds(device_id: str, data: dict):
 # Global variable to store plant recognition model
 plant_recognition_model = None
 
+def _get_demo_plant_data():
+    """
+    Helper function to get demo plant data without repeated imports
+    """
+    import sys
+    sys.path.append(os.path.join(os.path.dirname(__file__), '../../ai-ml/training'))
+    from train_plant_recognition_model import PlantRecognitionModel
+    
+    demo_model = PlantRecognitionModel()
+    demo_model.generate_sample_data()
+    return demo_model
+
 def get_plant_recognition_model():
     """
     Lazy load plant recognition model
@@ -626,9 +637,7 @@ async def list_plant_species():
         
         if isinstance(model, dict) and model.get("status") == "demo_mode":
             # Return demo species list
-            from train_plant_recognition_model import PlantRecognitionModel
-            demo_model = PlantRecognitionModel()
-            demo_model.generate_sample_data()
+            demo_model = _get_demo_plant_data()
             return {
                 "status": "success",
                 "total_species": len(demo_model.class_names),
@@ -656,9 +665,7 @@ async def get_plant_info(plant_name: str):
         plant_name = plant_name.lower().replace('-', '_')
         
         if isinstance(model, dict) and model.get("status") == "demo_mode":
-            from train_plant_recognition_model import PlantRecognitionModel
-            demo_model = PlantRecognitionModel()
-            demo_model.generate_sample_data()
+            demo_model = _get_demo_plant_data()
             
             if plant_name not in demo_model.plant_info:
                 raise HTTPException(status_code=404, detail=f"Plant '{plant_name}' not found")
@@ -685,8 +692,6 @@ async def get_plant_info(plant_name: str):
 # ============================================================================
 # WEBSOCKET FOR REAL-TIME UPDATES
 # ============================================================================
-    finally:
-        db.close()
 
 async def broadcast_to_websockets(data: dict):
     """Broadcast sensor data to all connected WebSocket clients"""
