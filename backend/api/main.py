@@ -507,12 +507,24 @@ async def check_thresholds(device_id: str, data: dict):
 # Global variable to store plant recognition model
 plant_recognition_model = None
 
+def _setup_model_import_path():
+    """
+    Helper to set up import path for plant recognition model.
+    
+    Note: This uses sys.path manipulation because the model is in a separate
+    training directory. In production, consider restructuring to use proper
+    package imports or setting PYTHONPATH appropriately.
+    """
+    import sys
+    model_path = os.path.join(os.path.dirname(__file__), '../../ai-ml/training')
+    if model_path not in sys.path:
+        sys.path.append(model_path)
+
 def _get_demo_plant_data():
     """
     Helper function to get demo plant data without repeated imports
     """
-    import sys
-    sys.path.append(os.path.join(os.path.dirname(__file__), '../../ai-ml/training'))
+    _setup_model_import_path()
     from train_plant_recognition_model import PlantRecognitionModel
     
     demo_model = PlantRecognitionModel()
@@ -527,8 +539,7 @@ def get_plant_recognition_model():
     if plant_recognition_model is None:
         try:
             # Import the model here to avoid loading at startup
-            import sys
-            sys.path.append(os.path.join(os.path.dirname(__file__), '../../ai-ml/training'))
+            _setup_model_import_path()
             from train_plant_recognition_model import PlantRecognitionModel
             
             plant_recognition_model = PlantRecognitionModel(img_size=224, num_classes=50)

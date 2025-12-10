@@ -370,7 +370,12 @@
     </div>
 
     <script>
-        const API_URL = 'http://localhost:8000';
+        // API URL configuration
+        // Can be overridden by setting window.AGRONOMIA_API_URL before this script loads
+        const API_URL = window.AGRONOMIA_API_URL || 
+                        (window.location.hostname === 'localhost' ? 'http://localhost:8000' : 
+                         `${window.location.protocol}//${window.location.hostname}:8000`);
+        
         let currentImage = null;
         let cameraStream = null;
 

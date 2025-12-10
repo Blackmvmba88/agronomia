@@ -226,10 +226,22 @@ class PlantRecognitionModel:
         """
         Train the model on plant images
         
+        NOTE: This is a template/demonstration method. It sets up the model
+        architecture and plant database but does NOT perform actual training.
+        
+        To train with real data:
+        1. Collect labeled plant images (e.g., from PlantCLEF, iNaturalist)
+        2. Organize them in data_dir with subdirectories per species
+        3. Use ImageDataGenerator to load the images
+        4. Call model.fit() with your training data
+        
         Args:
             data_dir: Directory containing plant images organized by species
             epochs: Number of training epochs
             batch_size: Training batch size
+            
+        Returns:
+            Dictionary with model metadata
         """
         # Generate sample data
         self.generate_sample_data()
@@ -243,12 +255,19 @@ class PlantRecognitionModel:
         
         # In production, load real image data here
         # For demonstration, we'll create synthetic training metadata
-        print("\nNote: This is a demonstration script.")
-        print("In production, replace with actual plant image dataset.")
-        print("Recommended datasets:")
-        print("  - PlantCLEF dataset")
-        print("  - iNaturalist plant subset")
-        print("  - Custom labeled plant images")
+        print("\n" + "="*60)
+        print("IMPORTANT: This is a TEMPLATE for training.")
+        print("="*60)
+        print("\nTo train with real data:")
+        print("  1. Collect labeled plant images from:")
+        print("     - PlantCLEF dataset")
+        print("     - iNaturalist plant subset")
+        print("     - Your own labeled images")
+        print("  2. Organize in data_dir: species1/, species2/, ...")
+        print("  3. Implement ImageDataGenerator loading")
+        print("  4. Call model.fit(training_data, validation_data)")
+        print("\nCurrent status: Model architecture ready, plant database loaded.")
+        print("="*60)
         
         return {
             'status': 'ready',
