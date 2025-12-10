@@ -74,16 +74,34 @@ services:
     networks:
       - agronomia-network
 
-  # Frontend Web App
-  frontend:
+  # Simple HTML Dashboard
+  dashboard-html:
     build:
       context: ./frontend/web
       dockerfile: Dockerfile
-    container_name: agronomia-frontend
+    container_name: agronomia-dashboard-html
     ports:
-      - "3000:80"
+      - "8080:80"
     volumes:
       - ./frontend/web:/usr/share/nginx/html:ro
+    restart: unless-stopped
+    networks:
+      - agronomia-network
+
+  # React Dashboard (Modern UI)
+  dashboard-react:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    container_name: agronomia-dashboard-react
+    environment:
+      # API URL is handled by nginx proxy, so React app uses relative path
+      - REACT_APP_API_URL=/api
+      - REACT_APP_DEVICE_ID=ESP32-001
+    ports:
+      - "3000:80"
+    depends_on:
+      - api
     restart: unless-stopped
     networks:
       - agronomia-network

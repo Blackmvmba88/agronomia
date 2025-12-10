@@ -1,24 +1,61 @@
 # Frontend - BlackMamba Smart Farming
 
-Dashboard web para visualización y control del sistema hidropónico.
+Aplicaciones web para visualización y control del sistema hidropónico.
 
-## 🚀 Características
+## 🎯 Dos Opciones de Dashboard
 
-- Dashboard en tiempo real con datos de sensores
-- Gráficas históricas de condiciones
-- Control remoto de actuadores (bombas, luces)
-- Sistema de alertas visuales
-- Diseño responsivo con Material-UI
+Este proyecto incluye **dos dashboards** para adaptarse a diferentes necesidades:
+
+### 📊 Dashboard Simple (HTML/JS)
+- **Ubicación**: `web/index.html`
+- **Sin instalación**: Abrir directamente en el navegador
+- **Características**: Gráficos en tiempo real, WebSocket, Chart.js
+- **Ideal para**: Pruebas rápidas, demos, aprendizaje
+
+### ⚛️ Dashboard React (Aplicación Moderna)
+- **Ubicación**: `src/`
+- **Requiere instalación**: npm install
+- **Características**: Material-UI, control de actuadores, alertas
+- **Ideal para**: Producción, uso avanzado
+
+## 🚀 Inicio Rápido
+
+### Opción 1: Abrir landing page
+```bash
+# Abrir index.html en el navegador desde el directorio frontend
+open index.html
+# o con un servidor simple:
+python3 -m http.server 8080
+# Luego visita http://localhost:8080
+```
+
+### Opción 2: Script automático (Dashboard React)
+```bash
+./setup-web.sh
+```
+
+### Opción 3: Manual (Dashboard React)
+```bash
+npm install
+cp .env.example .env
+# Editar .env si es necesario
+npm start
+```
 
 ## 📋 Requisitos
 
+### Dashboard Simple (web/index.html)
+- ✅ Navegador web moderno
+- ✅ Sin dependencias
+
+### Dashboard React (src/)
 - Node.js >= 16.0.0
 - npm o yarn
 - Backend API corriendo
 
-## 🔧 Instalación
+## 🔧 Instalación Detallada
 
-1. Instalar dependencias:
+1. Instalar dependencias (solo para React app):
 ```bash
 npm install
 ```
@@ -31,18 +68,34 @@ cp .env.example .env
 3. Editar `.env`:
 ```env
 REACT_APP_API_URL=http://localhost:3000/api
+REACT_APP_DEVICE_ID=ESP32-001
 ```
 
 ## 🏃 Ejecutar
 
-### Modo desarrollo
+### Dashboard Simple
+```bash
+# Opción 1: Abrir directamente
+open web/index.html
+
+# Opción 2: Con servidor Python
+python3 -m http.server 8080 --directory web
+# Visita http://localhost:8080
+
+# Opción 3: Con servidor Node
+npx http-server web -p 8080
+```
+
+### Dashboard React
+
+#### Modo desarrollo
 ```bash
 npm start
 ```
 
-La aplicación se abrirá en `http://localhost:3001`
+La aplicación se abrirá en `http://localhost:3000`
 
-### Compilar para producción
+#### Compilar para producción
 ```bash
 npm run build
 ```
