@@ -1,0 +1,290 @@
+{
+  "batch_id": "STR-2024-04",
+  "plant_type": "strawberry",
+  "variety": "Albion (Day-Neutral)",
+  "start_date": "2025-10-11",
+  "location": "Greenhouse A - Section 2",
+  "system_type": "NFT (Nutrient Film Technique)",
+  "initial_plant_count": 48,
+  "transplant_age_days": 21,
+  "growth_timeline": [
+    {
+      "date": "2025-10-11",
+      "days_since_transplant": 0,
+      "average_height_cm": 8.2,
+      "average_leaf_count": 12,
+      "crown_diameter_cm": 5.9,
+      "flowering_plants": 0,
+      "fruiting_plants": 0,
+      "health_status": "excellent",
+      "notes": "Week 1 observation"
+    },
+    {
+      "date": "2025-10-18",
+      "days_since_transplant": 7,
+      "average_height_cm": 9.3,
+      "average_leaf_count": 13,
+      "crown_diameter_cm": 7.0,
+      "flowering_plants": 0,
+      "fruiting_plants": 0,
+      "health_status": "excellent",
+      "notes": "Week 2 observation"
+    },
+    {
+      "date": "2025-10-25",
+      "days_since_transplant": 14,
+      "average_height_cm": 10.6,
+      "average_leaf_count": 15,
+      "crown_diameter_cm": 7.7,
+      "flowering_plants": 0,
+      "fruiting_plants": 0,
+      "health_status": "excellent",
+      "notes": "Week 3 observation"
+    },
+    {
+      "date": "2025-11-01",
+      "days_since_transplant": 21,
+      "average_height_cm": 11.3,
+      "average_leaf_count": 16,
+      "crown_diameter_cm": 8.3,
+      "flowering_plants": 0,
+      "fruiting_plants": 0,
+      "health_status": "excellent",
+      "notes": "Week 4 observation"
+    },
+    {
+      "date": "2025-11-08",
+      "days_since_transplant": 28,
+      "average_height_cm": 12.7,
+      "average_leaf_count": 18,
+      "crown_diameter_cm": 9.4,
+      "flowering_plants": 8,
+      "fruiting_plants": 0,
+      "health_status": "excellent",
+      "notes": "Week 5 observation"
+    },
+    {
+      "date": "2025-11-15",
+      "days_since_transplant": 35,
+      "average_height_cm": 14.1,
+      "average_leaf_count": 19,
+      "crown_diameter_cm": 10.2,
+      "flowering_plants": 16,
+      "fruiting_plants": 0,
+      "health_status": "excellent",
+      "notes": "Week 6 observation"
+    },
+    {
+      "date": "2025-11-22",
+      "days_since_transplant": 42,
+      "average_height_cm": 14.9,
+      "average_leaf_count": 21,
+      "crown_diameter_cm": 11.1,
+      "flowering_plants": 24,
+      "fruiting_plants": 10,
+      "health_status": "excellent",
+      "notes": "Week 7 observation"
+    },
+    {
+      "date": "2025-11-29",
+      "days_since_transplant": 49,
+      "average_height_cm": 16.3,
+      "average_leaf_count": 22,
+      "crown_diameter_cm": 11.9,
+      "flowering_plants": 32,
+      "fruiting_plants": 20,
+      "health_status": "good",
+      "notes": "Week 8 observation"
+    },
+    {
+      "date": "2025-12-06",
+      "days_since_transplant": 56,
+      "average_height_cm": 17.2,
+      "average_leaf_count": 24,
+      "crown_diameter_cm": 12.6,
+      "flowering_plants": 40,
+      "fruiting_plants": 30,
+      "health_status": "good",
+      "notes": "Week 9 observation"
+    }
+  ],
+  "environmental_summary": {
+    "avg_air_temp_c": 22.5,
+    "avg_water_temp_c": 20.8,
+    "avg_humidity_percent": 65.0,
+    "avg_ph": 6.1,
+    "avg_ec_us_cm": 1850,
+    "photoperiod_hours": 16,
+    "avg_par_umol": 450
+  },
+  "nutrient_schedule": [
+    {
+      "week": 1,
+      "formula": "Vegetative",
+      "n_ppm": 180,
+      "p_ppm": 60,
+      "k_ppm": 200,
+      "ca_ppm": 160,
+      "mg_ppm": 50,
+      "ec_target": 1800
+    },
+    {
+      "week": 2,
+      "formula": "Vegetative",
+      "n_ppm": 180,
+      "p_ppm": 60,
+      "k_ppm": 200,
+      "ca_ppm": 160,
+      "mg_ppm": 50,
+      "ec_target": 1800
+    },
+    {
+      "week": 3,
+      "formula": "Vegetative",
+      "n_ppm": 180,
+      "p_ppm": 60,
+      "k_ppm": 200,
+      "ca_ppm": 160,
+      "mg_ppm": 50,
+      "ec_target": 1800
+    },
+    {
+      "week": 4,
+      "formula": "Vegetative",
+      "n_ppm": 180,
+      "p_ppm": 60,
+      "k_ppm": 200,
+      "ca_ppm": 160,
+      "mg_ppm": 50,
+      "ec_target": 1800
+    },
+    {
+      "week": 5,
+      "formula": "Flowering/Fruiting",
+      "n_ppm": 140,
+      "p_ppm": 90,
+      "k_ppm": 280,
+      "ca_ppm": 160,
+      "mg_ppm": 50,
+      "ec_target": 1950
+    },
+    {
+      "week": 6,
+      "formula": "Flowering/Fruiting",
+      "n_ppm": 140,
+      "p_ppm": 90,
+      "k_ppm": 280,
+      "ca_ppm": 160,
+      "mg_ppm": 50,
+      "ec_target": 1950
+    },
+    {
+      "week": 7,
+      "formula": "Flowering/Fruiting",
+      "n_ppm": 140,
+      "p_ppm": 90,
+      "k_ppm": 280,
+      "ca_ppm": 160,
+      "mg_ppm": 50,
+      "ec_target": 1950
+    },
+    {
+      "week": 8,
+      "formula": "Flowering/Fruiting",
+      "n_ppm": 140,
+      "p_ppm": 90,
+      "k_ppm": 280,
+      "ca_ppm": 160,
+      "mg_ppm": 50,
+      "ec_target": 1950
+    },
+    {
+      "week": 9,
+      "formula": "Flowering/Fruiting",
+      "n_ppm": 140,
+      "p_ppm": 90,
+      "k_ppm": 280,
+      "ca_ppm": 160,
+      "mg_ppm": 50,
+      "ec_target": 1950
+    }
+  ],
+  "harvest_data": [
+    {
+      "harvest_date": "2025-11-22",
+      "harvest_number": 1,
+      "berries_harvested": 96,
+      "total_weight_g": 985,
+      "avg_berry_weight_g": 13.4,
+      "grade_a_percent": 74.0,
+      "brix_level": 7.1
+    },
+    {
+      "harvest_date": "2025-11-25",
+      "harvest_number": 2,
+      "berries_harvested": 96,
+      "total_weight_g": 1034,
+      "avg_berry_weight_g": 12.4,
+      "grade_a_percent": 91.0,
+      "brix_level": 8.6
+    },
+    {
+      "harvest_date": "2025-11-28",
+      "harvest_number": 3,
+      "berries_harvested": 88,
+      "total_weight_g": 1377,
+      "avg_berry_weight_g": 18.3,
+      "grade_a_percent": 82.7,
+      "brix_level": 9.5
+    },
+    {
+      "harvest_date": "2025-12-01",
+      "harvest_number": 4,
+      "berries_harvested": 92,
+      "total_weight_g": 1391,
+      "avg_berry_weight_g": 10.9,
+      "grade_a_percent": 88.9,
+      "brix_level": 8.7
+    },
+    {
+      "harvest_date": "2025-12-04",
+      "harvest_number": 5,
+      "berries_harvested": 85,
+      "total_weight_g": 1118,
+      "avg_berry_weight_g": 16.7,
+      "grade_a_percent": 83.9,
+      "brix_level": 8.6
+    },
+    {
+      "harvest_date": "2025-12-07",
+      "harvest_number": 6,
+      "berries_harvested": 97,
+      "total_weight_g": 1267,
+      "avg_berry_weight_g": 14.7,
+      "grade_a_percent": 79.5,
+      "brix_level": 8.2
+    }
+  ],
+  "total_yield": {
+    "total_berries": 487,
+    "total_weight_kg": 7.2,
+    "yield_per_plant_g": 150,
+    "production_days": 60,
+    "quality_rating": 4.5
+  },
+  "observations": [
+    "Strong vegetative growth in first 3 weeks",
+    "First flowers appeared day 28",
+    "Consistent flowering and fruiting from week 5",
+    "No major pest or disease issues",
+    "Excellent fruit quality and Brix levels",
+    "Plants responded well to increased K during fruiting"
+  ],
+  "recommendations": [
+    "Maintain EC between 1800-2000 \u03bcS/cm for optimal fruiting",
+    "Monitor for spider mites in warmer conditions",
+    "Increase air circulation during fruiting",
+    "Continue current nutrient schedule",
+    "Harvest every 2-3 days when fruit is 80% red"
+  ]
+}
