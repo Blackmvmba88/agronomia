@@ -99,3 +99,7 @@ site/
 *.key
 *.cert
 secrets/
+
+# Test files
+test_*.py
+*_test.py
