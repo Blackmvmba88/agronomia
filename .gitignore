@@ -1,45 +1,101 @@
-# Node modules
-node_modules/
-*/node_modules/
+# .gitignore for Agronomia
 
-# Environment variables
-.env
-.env.local
-*/.env
-*/.env.local
-
-# Build outputs
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+venv/
+env/
+ENV/
+*.egg-info/
 dist/
 build/
-*/dist/
-*/build/
+*.egg
 
-# IDE
+# Node.js
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+package-lock.json
+yarn.lock
+
+# IDEs
 .vscode/
 .idea/
 *.swp
 *.swo
-
-# OS
+*~
 .DS_Store
-Thumbs.db
+
+# AI/ML
+*.h5
+*.pkl
+*.onnx
+models/*.h5
+models/*.pkl
+ai-ml/models/*.h5
+ai-ml/models/*.pkl
+*.ipynb_checkpoints/
+
+# Database
+*.db
+*.sqlite
+*.sqlite3
+agronomia.db
 
 # Logs
 *.log
 logs/
+docker/mosquitto/log/*.log
+
+# Environment variables
+.env
+.env.local
+.env.*.local
+backend/api/.env
+config.h
+!config.h.example
+!.env.example
+
+# Docker
+docker/mosquitto/data/
+docker/mosquitto/log/
+docker/grafana/
+
+# Build artifacts
+*.o
+*.a
+*.hex
+*.elf
+*.bin
+.pio/
+.pioenvs/
+.piolibdeps/
 
 # Temporary files
 tmp/
 temp/
 *.tmp
+*.bak
 
-# Firmware specific
-firmware/.pio/
-firmware/config/config.h
+# OS files
+Thumbs.db
+.DS_Store
 
-# Firebase
-.firebase/
-firebase-debug.log
+# Test coverage
+.coverage
+htmlcov/
+.pytest_cache/
 
-# CodeQL
-_codeql_detected_source_root
+# Documentation builds
+docs/_build/
+site/
+
+# Secrets
+*.pem
+*.key
+*.cert
+secrets/

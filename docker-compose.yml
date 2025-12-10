@@ -1,0 +1,131 @@
+version: '3.8'
+
+services:
+  # MQTT Broker
+  mosquitto:
+    image: eclipse-mosquitto:2.0
+    container_name: agronomia-mqtt
+    ports:
+      - "1883:1883"
+      - "9001:9001"
+    volumes:
+      - ./docker/mosquitto/config:/mosquitto/config
+      - ./docker/mosquitto/data:/mosquitto/data
+      - ./docker/mosquitto/log:/mosquitto/log
+    restart: unless-stopped
+    networks:
+      - agronomia-network
+
+  # PostgreSQL Database
+  postgres:
+    image: postgres:15-alpine
+    container_name: agronomia-db
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER:-agronomia}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-CHANGE_THIS_PASSWORD}
+      POSTGRES_DB: ${POSTGRES_DB:-agronomia}
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+      - ./backend/database/init.sql:/docker-entrypoint-initdb.d/init.sql
+    restart: unless-stopped
+    networks:
+      - agronomia-network
+
+  # InfluxDB for time-series data
+  influxdb:
+    image: influxdb:2.7-alpine
+    container_name: agronomia-influxdb
+    environment:
+      DOCKER_INFLUXDB_INIT_MODE: setup
+      DOCKER_INFLUXDB_INIT_USERNAME: admin
+      DOCKER_INFLUXDB_INIT_PASSWORD: ${INFLUXDB_ADMIN_PASSWORD:-CHANGE_THIS_PASSWORD}
+      DOCKER_INFLUXDB_INIT_ORG: agronomia
+      DOCKER_INFLUXDB_INIT_BUCKET: sensors
+      DOCKER_INFLUXDB_INIT_ADMIN_TOKEN: ${INFLUXDB_TOKEN:-CHANGE_THIS_TOKEN}
+    ports:
+      - "8086:8086"
+    volumes:
+      - influxdb-data:/var/lib/influxdb2
+    restart: unless-stopped
+    networks:
+      - agronomia-network
+
+  # Backend API
+  api:
+    build:
+      context: ./backend/api
+      dockerfile: Dockerfile
+    container_name: agronomia-api
+    environment:
+      DATABASE_URL: postgresql://${POSTGRES_USER:-agronomia}:${POSTGRES_PASSWORD:-CHANGE_THIS_PASSWORD}@postgres:5432/${POSTGRES_DB:-agronomia}
+      MQTT_BROKER: mosquitto
+      MQTT_PORT: 1883
+      ALLOWED_ORIGINS: ${ALLOWED_ORIGINS:-http://localhost:3000}
+    ports:
+      - "8000:8000"
+    volumes:
+      - ./backend/api:/app
+    depends_on:
+      - postgres
+      - mosquitto
+    restart: unless-stopped
+    networks:
+      - agronomia-network
+
+  # Frontend Web App
+  frontend:
+    build:
+      context: ./frontend/web
+      dockerfile: Dockerfile
+    container_name: agronomia-frontend
+    ports:
+      - "3000:80"
+    volumes:
+      - ./frontend/web:/usr/share/nginx/html:ro
+    restart: unless-stopped
+    networks:
+      - agronomia-network
+
+  # Grafana for Advanced Dashboards
+  grafana:
+    image: grafana/grafana:10.2.2
+    container_name: agronomia-grafana
+    environment:
+      GF_SECURITY_ADMIN_USER: admin
+      GF_SECURITY_ADMIN_PASSWORD: ${GRAFANA_PASSWORD:-CHANGE_THIS_PASSWORD}
+      GF_INSTALL_PLUGINS: grafana-clock-panel,grafana-simple-json-datasource
+    ports:
+      - "3001:3000"
+    volumes:
+      - grafana-data:/var/lib/grafana
+      - ./docker/grafana/provisioning:/etc/grafana/provisioning
+    depends_on:
+      - influxdb
+      - postgres
+    restart: unless-stopped
+    networks:
+      - agronomia-network
+
+  # Redis for caching and session management
+  redis:
+    image: redis:7-alpine
+    container_name: agronomia-redis
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis-data:/data
+    restart: unless-stopped
+    networks:
+      - agronomia-network
+
+volumes:
+  postgres-data:
+  influxdb-data:
+  grafana-data:
+  redis-data:
+
+networks:
+  agronomia-network:
+    driver: bridge
