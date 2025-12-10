@@ -1,0 +1,52 @@
+/**
+ * Archivo de configuración para el sistema BlackMamba Smart Farming
+ * 
+ * IMPORTANTE: Copiar este archivo a config.h y ajustar los valores
+ */
+
+#ifndef CONFIG_H
+#define CONFIG_H
+
+// ===== CONFIGURACIÓN WiFi =====
+#define WIFI_SSID "TU_WIFI_SSID"
+#define WIFI_PASSWORD "TU_WIFI_PASSWORD"
+
+// ===== CONFIGURACIÓN API =====
+#define API_ENDPOINT "http://tu-servidor.com"  // URL del backend
+#define DEVICE_ID "ESP32-001"                    // ID único del dispositivo
+
+// ===== CALIBRACIÓN SENSORES =====
+
+// Sensor de pH
+#define PH_NEUTRAL_VOLTAGE 2.5    // Voltaje en pH 7.0 (ajustar según calibración)
+#define PH_MIN 5.5                // pH mínimo aceptable
+#define PH_MAX 6.5                // pH máximo aceptable
+
+// Sensor de EC (Conductividad Eléctrica)
+#define EC_CONVERSION_FACTOR 1000.0  // Factor de conversión a µS/cm
+#define EC_MIN 800.0                 // EC mínima aceptable (µS/cm)
+#define EC_MAX 1500.0                // EC máxima aceptable (µS/cm)
+
+// Temperatura del agua
+#define WATER_TEMP_MIN 18.0       // Temperatura mínima del agua (°C)
+#define WATER_TEMP_MAX 24.0       // Temperatura máxima del agua (°C)
+
+// Temperatura y humedad ambiente
+#define AIR_TEMP_MIN 18.0         // Temperatura mínima del aire (°C)
+#define AIR_TEMP_MAX 28.0         // Temperatura máxima del aire (°C)
+#define HUMIDITY_MIN 50.0         // Humedad mínima (%)
+#define HUMIDITY_MAX 70.0         // Humedad máxima (%)
+
+// Luminosidad
+#define LIGHT_MIN 800             // Nivel de luz mínimo
+#define LIGHT_MAX 3000            // Nivel de luz máximo
+
+// ===== INTERVALOS DE TIEMPO =====
+#define SENSOR_READ_INTERVAL 60000    // Intervalo de lectura de sensores (ms)
+#define DATA_SEND_INTERVAL 60000      // Intervalo de envío de datos (ms)
+
+// ===== CONTROL DE ACTUADORES =====
+#define PUMP_ON_DURATION 600000       // Duración bomba encendida (ms) - 10 min
+#define PUMP_OFF_DURATION 3000000     // Duración bomba apagada (ms) - 50 min
+
+#endif // CONFIG_H
