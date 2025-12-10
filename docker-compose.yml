@@ -95,7 +95,8 @@ services:
       dockerfile: Dockerfile
     container_name: agronomia-dashboard-react
     environment:
-      - REACT_APP_API_URL=http://localhost:8000/api
+      # API URL is handled by nginx proxy, so React app uses relative path
+      - REACT_APP_API_URL=/api
       - REACT_APP_DEVICE_ID=ESP32-001
     ports:
       - "3000:80"
