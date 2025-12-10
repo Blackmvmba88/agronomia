@@ -319,19 +319,23 @@ jobs:
 ### Tracking Performance
 
 ```python
-# Log predictions for monitoring
+# Log predictions for monitoring (without sensitive data)
 import logging
+import hashlib
 
 logger = logging.getLogger('model_predictions')
 
 def predict_with_logging(model, features):
     prediction = model.predict(features)
     
+    # Hash features for privacy-preserving logging
+    feature_hash = hashlib.sha256(str(features).encode()).hexdigest()[:16]
+    
     logger.info({
         'timestamp': datetime.now(),
         'model': 'irrigation_v1',
         'prediction': prediction,
-        'features': features
+        'feature_hash': feature_hash  # Hashed instead of raw features
     })
     
     return prediction

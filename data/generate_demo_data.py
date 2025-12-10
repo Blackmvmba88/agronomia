@@ -463,7 +463,7 @@ These datasets are perfect for:
 
 If you use this data in research or publications:
 
-```
+```bibtex
 @dataset{agronomia_demo_2024,
   title={Agronomia Demo Datasets - Hydroponic Monitoring Data},
   author={Agronomia Project Contributors},

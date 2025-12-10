@@ -3,6 +3,9 @@
 Simulate real-time sensor data for Agronomia
 This allows testing the system without physical hardware
 
+Dependencies:
+    pip install paho-mqtt requests  # For MQTT and HTTP modes
+
 Usage:
     python simulate_data.py              # MQTT simulation
     python simulate_data.py --mode http  # HTTP API simulation
@@ -21,23 +24,30 @@ try:
     HAS_REQUESTS = True
 except ImportError:
     HAS_REQUESTS = False
-    print("Note: Install 'requests' for HTTP mode: pip install requests")
 
 try:
     import paho.mqtt.client as mqtt
     HAS_MQTT = True
 except ImportError:
     HAS_MQTT = False
-    print("Note: Install 'paho-mqtt' for MQTT mode: pip install paho-mqtt")
 
 
 class SensorSimulator:
     """Simulates realistic hydroponic sensor readings"""
     
+    # Configuration constants
+    PH_MIN = 5.5
+    PH_MAX = 7.0
+    EC_MIN = 1500
+    EC_MAX = 2500
+    TEMP_MIN = 15
+    TEMP_MAX = 35
+    
     def __init__(self, device_id="SIM-ESP32-001", plant_type="tomato"):
         self.device_id = device_id
         self.plant_type = plant_type
         self.time_offset = 0
+        self.start_time = time.time()  # Track device start for uptime
         
         # Base values
         self.ph_base = 6.0
@@ -74,11 +84,11 @@ class SensorSimulator:
         
         # pH slowly drifts
         ph_drift = random.gauss(0, 0.05)
-        self.ph_base = max(5.5, min(7.0, self.ph_base + ph_drift))
+        self.ph_base = max(self.PH_MIN, min(self.PH_MAX, self.ph_base + ph_drift))
         
         # EC slowly decreases (nutrient consumption)
         ec_drift = random.gauss(-2, 10)
-        self.ec_base = max(1500, min(2500, self.ec_base + ec_drift))
+        self.ec_base = max(self.EC_MIN, min(self.EC_MAX, self.ec_base + ec_drift))
         
         # CO2 levels
         co2 = random.gauss(800 if is_day else 600, 100)
@@ -88,7 +98,7 @@ class SensorSimulator:
             "device_id": self.device_id,
             "plant_type": self.plant_type,
             "sensors": {
-                "air_temp_c": round(max(15, min(35, air_temp)), 2),
+                "air_temp_c": round(max(self.TEMP_MIN, min(self.TEMP_MAX, air_temp)), 2),
                 "water_temp_c": round(max(18, min(28, water_temp)), 2),
                 "humidity_percent": round(max(40, min(90, humidity)), 1),
                 "ph": round(self.ph_base, 2),
@@ -103,7 +113,7 @@ class SensorSimulator:
             "status": {
                 "battery_percent": random.randint(85, 100),
                 "wifi_rssi": random.randint(-70, -40),
-                "uptime_seconds": int(time.time())
+                "uptime_seconds": int(time.time() - self.start_time)
             }
         }
 
