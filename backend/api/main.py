@@ -3,7 +3,7 @@ Agronomia Backend API
 FastAPI-based REST API for hydroponic monitoring platform
 """
 
-from fastapi import FastAPI, HTTPException, WebSocket, WebSocketDisconnect, Depends
+from fastapi import FastAPI, HTTPException, WebSocket, WebSocketDisconnect, Depends, File, UploadFile
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
 from pydantic import BaseModel, Field
@@ -13,6 +13,9 @@ import asyncio
 import json
 import os
 from collections import defaultdict
+import io
+from PIL import Image
+import numpy as np
 
 # Database imports (using SQLAlchemy)
 from sqlalchemy import create_engine, Column, Integer, Float, String, DateTime, Boolean
@@ -31,7 +34,6 @@ app = FastAPI(
 
 # CORS middleware
 # Configure allowed origins based on environment
-import os
 ALLOWED_ORIGINS = os.getenv("ALLOWED_ORIGINS", "http://localhost:3000,http://localhost:8000").split(",")
 
 app.add_middleware(
@@ -497,6 +499,210 @@ async def check_thresholds(device_id: str, data: dict):
         print(f"Error checking thresholds: {e}")
     finally:
         db.close()
+
+# ============================================================================
+# PLANT RECOGNITION ENDPOINTS
+# ============================================================================
+
+# Global variable to store plant recognition model
+plant_recognition_model = None
+
+def _setup_model_import_path():
+    """
+    Helper to set up import path for plant recognition model.
+    
+    Note: This uses sys.path manipulation because the model is in a separate
+    training directory. In production, consider restructuring to use proper
+    package imports or setting PYTHONPATH appropriately.
+    """
+    import sys
+    model_path = os.path.join(os.path.dirname(__file__), '../../ai-ml/training')
+    if model_path not in sys.path:
+        sys.path.append(model_path)
+
+def _get_demo_plant_data():
+    """
+    Helper function to get demo plant data without repeated imports
+    """
+    _setup_model_import_path()
+    from train_plant_recognition_model import PlantRecognitionModel
+    
+    demo_model = PlantRecognitionModel()
+    demo_model.generate_sample_data()
+    return demo_model
+
+def get_plant_recognition_model():
+    """
+    Lazy load plant recognition model
+    """
+    global plant_recognition_model
+    if plant_recognition_model is None:
+        try:
+            # Import the model here to avoid loading at startup
+            _setup_model_import_path()
+            from train_plant_recognition_model import PlantRecognitionModel
+            
+            plant_recognition_model = PlantRecognitionModel(img_size=224, num_classes=50)
+            
+            # Try to load pre-trained model, or initialize with plant database
+            model_dir = os.path.join(os.path.dirname(__file__), '../../ai-ml/models/plant_recognition')
+            if os.path.exists(os.path.join(model_dir, 'plant_recognition_metadata.json')):
+                plant_recognition_model.load_model(model_dir)
+                print("Loaded pre-trained plant recognition model")
+            else:
+                # Initialize with plant database but without trained weights
+                plant_recognition_model.generate_sample_data()
+                print("Initialized plant recognition model with plant database")
+        except Exception as e:
+            print(f"Error loading plant recognition model: {e}")
+            # Return a mock model for demonstration
+            plant_recognition_model = {"status": "demo_mode"}
+    
+    return plant_recognition_model
+
+@app.post("/api/plant/identify")
+async def identify_plant(file: UploadFile = File(...)):
+    """
+    Identify plant species from uploaded image
+    
+    Returns detailed information about the plant including:
+    - Species identification with confidence
+    - Scientific name and family
+    - Optimal growing conditions (pH, EC, temperature)
+    - Care observations
+    - Common issues
+    - Harvest indicators
+    """
+    try:
+        # Read image file
+        contents = await file.read()
+        image = Image.open(io.BytesIO(contents))
+        
+        # Convert to RGB if needed
+        if image.mode != 'RGB':
+            image = image.convert('RGB')
+        
+        # Resize and convert to array
+        image = image.resize((224, 224))
+        img_array = np.array(image)
+        
+        # Get model
+        model = get_plant_recognition_model()
+        
+        # Check if model is in demo mode
+        if isinstance(model, dict) and model.get("status") == "demo_mode":
+            # Return demo prediction
+            return {
+                "status": "demo_mode",
+                "message": "Plant recognition model not fully loaded. Showing demo results.",
+                "predictions": [
+                    {
+                        "rank": 1,
+                        "plant_name": "tomato",
+                        "confidence": 0.85,
+                        "confidence_percentage": "85.0%",
+                        "plant_info": {
+                            "scientific_name": "Solanum lycopersicum",
+                            "family": "Solanaceae",
+                            "type": "Fruiting vegetable",
+                            "growth_time": "60-80 days",
+                            "optimal_ph": "5.5-6.5",
+                            "optimal_ec": "2.0-5.0 mS/cm",
+                            "light_requirements": "High (14-18 hours)",
+                            "temperature": "21-27°C",
+                            "observations": [
+                                "Compound leaves with serrated edges",
+                                "Yellow flowers with 5 petals",
+                                "Requires support/staking",
+                                "Needs regular pruning",
+                                "High nutrient requirements during fruiting"
+                            ],
+                            "common_issues": ["Blossom end rot", "Leaf curl", "Aphids"],
+                            "harvest_indicators": "Fruit color change, firm but slightly soft to touch"
+                        }
+                    }
+                ],
+                "timestamp": datetime.now().isoformat()
+            }
+        
+        # Make prediction
+        result = model.predict(img_array, top_k=5)
+        
+        return {
+            "status": "success",
+            "predictions": result["predictions"],
+            "timestamp": result["timestamp"],
+            "model_version": result["model_version"]
+        }
+        
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Error processing image: {str(e)}")
+
+@app.get("/api/plant/species")
+async def list_plant_species():
+    """
+    Get list of all supported plant species with their information
+    """
+    try:
+        model = get_plant_recognition_model()
+        
+        if isinstance(model, dict) and model.get("status") == "demo_mode":
+            # Return demo species list
+            demo_model = _get_demo_plant_data()
+            return {
+                "status": "success",
+                "total_species": len(demo_model.class_names),
+                "species": demo_model.class_names,
+                "plant_info": demo_model.plant_info
+            }
+        
+        return {
+            "status": "success",
+            "total_species": len(model.class_names),
+            "species": model.class_names,
+            "plant_info": model.plant_info
+        }
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Error retrieving species list: {str(e)}")
+
+@app.get("/api/plant/info/{plant_name}")
+async def get_plant_info(plant_name: str):
+    """
+    Get detailed information about a specific plant species
+    """
+    try:
+        model = get_plant_recognition_model()
+        
+        plant_name = plant_name.lower().replace('-', '_')
+        
+        if isinstance(model, dict) and model.get("status") == "demo_mode":
+            demo_model = _get_demo_plant_data()
+            
+            if plant_name not in demo_model.plant_info:
+                raise HTTPException(status_code=404, detail=f"Plant '{plant_name}' not found")
+            
+            return {
+                "status": "success",
+                "plant_name": plant_name,
+                "plant_info": demo_model.plant_info[plant_name]
+            }
+        
+        if plant_name not in model.plant_info:
+            raise HTTPException(status_code=404, detail=f"Plant '{plant_name}' not found")
+        
+        return {
+            "status": "success",
+            "plant_name": plant_name,
+            "plant_info": model.plant_info[plant_name]
+        }
+    except HTTPException:
+        raise
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Error retrieving plant info: {str(e)}")
+
+# ============================================================================
+# WEBSOCKET FOR REAL-TIME UPDATES
+# ============================================================================
 
 async def broadcast_to_websockets(data: dict):
     """Broadcast sensor data to all connected WebSocket clients"""

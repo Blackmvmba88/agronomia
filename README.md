@@ -30,6 +30,17 @@ Agronomia is a comprehensive IoT-based agricultural monitoring system designed f
 - **Light Sensors**: Measure PAR (Photosynthetically Active Radiation) for optimal growth
 - **Temperature Sensors**: Track ambient and water temperature (18-26°C optimal)
 
+### Plant Recognition (NEW!)
+- **Image-Based Identification**: Identify plants from photos using AI
+- **Camera Support**: Take photos directly with device camera
+- **50+ Plant Species**: Comprehensive database of hydroponic plants
+- **Detailed Observations**: Complete plant information including:
+  - Scientific name and family classification
+  - Optimal growing conditions (pH, EC, temperature, light)
+  - Growth characteristics and care tips
+  - Common issues and solutions
+  - Harvest indicators
+
 ### Data Visualization
 - Real-time dashboards for web and mobile
 - Historical trend analysis
@@ -37,6 +48,7 @@ Agronomia is a comprehensive IoT-based agricultural monitoring system designed f
 - Customizable alerts and notifications
 
 ### AI-Powered Optimization
+- **Plant Recognition**: Deep learning model for species identification
 - **Irrigation Prediction**: ML models predict optimal watering schedules
 - **Nutrient Optimization**: AI-driven nutrient dosing recommendations
 - **Harvest Prediction**: Predictive models for harvest timing and yield estimation
@@ -231,6 +243,7 @@ We include trained models ready to use:
 
 | Model | Purpose | Accuracy | Size |
 |-------|---------|----------|------|
+| `plant_recognition_model.h5` | Identify plant species | Top-5: 95%+ | 12 MB |
 | `irrigation_model_v1.pkl` | Predict irrigation timing | 92% | 2.4 MB |
 | `nutrient_model_v1.pkl` | Optimize nutrient levels | 89% | 1.8 MB |
 | `harvest_model_v1.pkl` | Predict harvest & yield | ±3 days | 3.1 MB |
@@ -365,8 +378,21 @@ Recommended structure:
 - **Alerts**: Configurable thresholds for all sensor types
 - **Growth Analytics**: Compare growth cycles and optimize conditions
 - **AI Insights**: Recommendations based on predictive models
+- **Plant Recognition**: Identify plants from photos with detailed information
 
 ## 🤖 AI Models
+
+### Plant Recognition (NEW!)
+- Input: Plant image (photo)
+- Output: Species identification with confidence, detailed plant information
+- Model: Transfer learning with EfficientNetB0
+- Species: 50+ common hydroponic plants
+- Information provided:
+  - Scientific name and family
+  - Optimal pH, EC, temperature, and light requirements
+  - Growth characteristics and observations
+  - Common issues and solutions
+  - Harvest indicators
 
 ### Irrigation Prediction
 - Input: Temperature, humidity, growth stage, time of day
