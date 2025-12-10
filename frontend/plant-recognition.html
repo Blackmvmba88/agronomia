@@ -1,0 +1,642 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Reconocimiento de Plantas - Agronomia</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .header {
+            text-align: center;
+            color: white;
+            margin-bottom: 30px;
+        }
+
+        .header h1 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+        }
+
+        .header p {
+            font-size: 1.2em;
+            opacity: 0.95;
+        }
+
+        .main-content {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+            margin-bottom: 20px;
+        }
+
+        .card {
+            background: white;
+            border-radius: 15px;
+            padding: 30px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+        }
+
+        .upload-section {
+            text-align: center;
+        }
+
+        .upload-section h2 {
+            color: #667eea;
+            margin-bottom: 20px;
+        }
+
+        .upload-area {
+            border: 3px dashed #667eea;
+            border-radius: 10px;
+            padding: 40px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            background: #f8f9fa;
+        }
+
+        .upload-area:hover {
+            background: #e9ecef;
+            border-color: #5568d3;
+        }
+
+        .upload-area.drag-over {
+            background: #d4e3fc;
+            border-color: #4c63d2;
+        }
+
+        .upload-icon {
+            font-size: 4em;
+            margin-bottom: 10px;
+        }
+
+        #imagePreview {
+            max-width: 100%;
+            max-height: 400px;
+            margin: 20px auto;
+            display: none;
+            border-radius: 10px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+
+        .camera-section {
+            margin-top: 20px;
+        }
+
+        #cameraVideo {
+            width: 100%;
+            max-height: 300px;
+            border-radius: 10px;
+            display: none;
+            margin-bottom: 10px;
+        }
+
+        .button {
+            background: #667eea;
+            color: white;
+            border: none;
+            padding: 12px 30px;
+            border-radius: 8px;
+            font-size: 1em;
+            cursor: pointer;
+            transition: background 0.3s ease;
+            margin: 5px;
+        }
+
+        .button:hover {
+            background: #5568d3;
+        }
+
+        .button:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+        }
+
+        .button.secondary {
+            background: #6c757d;
+        }
+
+        .button.secondary:hover {
+            background: #5a6268;
+        }
+
+        .results-section h2 {
+            color: #667eea;
+            margin-bottom: 20px;
+        }
+
+        .loading {
+            text-align: center;
+            padding: 40px;
+            display: none;
+        }
+
+        .spinner {
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid #667eea;
+            border-radius: 50%;
+            width: 50px;
+            height: 50px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 20px;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .result-item {
+            background: #f8f9fa;
+            border-radius: 10px;
+            padding: 20px;
+            margin-bottom: 15px;
+            border-left: 4px solid #667eea;
+        }
+
+        .result-item.rank-1 {
+            border-left-color: #28a745;
+            background: #d4edda;
+        }
+
+        .result-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+
+        .plant-name {
+            font-size: 1.3em;
+            font-weight: bold;
+            color: #333;
+            text-transform: capitalize;
+        }
+
+        .confidence-badge {
+            background: #667eea;
+            color: white;
+            padding: 5px 15px;
+            border-radius: 20px;
+            font-weight: bold;
+        }
+
+        .confidence-badge.high {
+            background: #28a745;
+        }
+
+        .confidence-badge.medium {
+            background: #ffc107;
+            color: #333;
+        }
+
+        .confidence-badge.low {
+            background: #6c757d;
+        }
+
+        .plant-details {
+            margin-top: 15px;
+        }
+
+        .detail-row {
+            display: grid;
+            grid-template-columns: 150px 1fr;
+            padding: 8px 0;
+            border-bottom: 1px solid #dee2e6;
+        }
+
+        .detail-row:last-child {
+            border-bottom: none;
+        }
+
+        .detail-label {
+            font-weight: bold;
+            color: #495057;
+        }
+
+        .detail-value {
+            color: #666;
+        }
+
+        .observations-list {
+            list-style: none;
+            padding-left: 0;
+        }
+
+        .observations-list li {
+            padding: 5px 0;
+            color: #666;
+        }
+
+        .observations-list li:before {
+            content: "✓ ";
+            color: #28a745;
+            font-weight: bold;
+        }
+
+        .error-message {
+            background: #f8d7da;
+            color: #721c24;
+            padding: 15px;
+            border-radius: 8px;
+            margin-top: 20px;
+            display: none;
+        }
+
+        .species-list {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+            gap: 10px;
+            margin-top: 20px;
+        }
+
+        .species-chip {
+            background: #e9ecef;
+            padding: 8px 12px;
+            border-radius: 20px;
+            text-align: center;
+            font-size: 0.9em;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .species-chip:hover {
+            background: #667eea;
+            color: white;
+        }
+
+        .back-button {
+            display: inline-block;
+            margin-bottom: 20px;
+            color: white;
+            text-decoration: none;
+            font-size: 1.1em;
+        }
+
+        .back-button:hover {
+            text-decoration: underline;
+        }
+
+        @media (max-width: 768px) {
+            .main-content {
+                grid-template-columns: 1fr;
+            }
+
+            .detail-row {
+                grid-template-columns: 1fr;
+            }
+
+            .detail-label {
+                margin-bottom: 5px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <a href="./index.html" class="back-button">← Volver al inicio</a>
+        
+        <div class="header">
+            <h1>🌿 Reconocimiento de Plantas</h1>
+            <p>Identifica plantas con fotos y obtén observaciones completas</p>
+        </div>
+
+        <div class="main-content">
+            <div class="card upload-section">
+                <h2>Subir Foto</h2>
+                
+                <div class="upload-area" id="uploadArea">
+                    <div class="upload-icon">📷</div>
+                    <p><strong>Arrastra una foto aquí</strong></p>
+                    <p>o haz clic para seleccionar</p>
+                    <input type="file" id="fileInput" accept="image/*" style="display: none;">
+                </div>
+
+                <img id="imagePreview" alt="Vista previa">
+
+                <div class="camera-section">
+                    <button class="button" id="cameraButton">📸 Usar Cámara</button>
+                    <video id="cameraVideo" autoplay playsinline></video>
+                    <canvas id="cameraCanvas" style="display: none;"></canvas>
+                    <div id="cameraControls" style="display: none;">
+                        <button class="button" id="captureButton">Capturar Foto</button>
+                        <button class="button secondary" id="closeCameraButton">Cerrar Cámara</button>
+                    </div>
+                </div>
+
+                <button class="button" id="identifyButton" disabled>🔍 Identificar Planta</button>
+                <button class="button secondary" id="clearButton" style="display: none;">Limpiar</button>
+            </div>
+
+            <div class="card results-section">
+                <h2>Resultados</h2>
+                
+                <div class="loading" id="loading">
+                    <div class="spinner"></div>
+                    <p>Analizando imagen...</p>
+                </div>
+
+                <div id="results"></div>
+                
+                <div class="error-message" id="errorMessage"></div>
+            </div>
+        </div>
+
+        <div class="card">
+            <h2 style="color: #667eea; margin-bottom: 15px;">📚 Especies Soportadas</h2>
+            <p style="color: #666; margin-bottom: 15px;">
+                Nuestro sistema puede identificar más de 50 especies de plantas comúnmente cultivadas en hidroponía.
+                Haz clic en cualquier especie para ver información detallada.
+            </p>
+            <div class="species-list" id="speciesList"></div>
+        </div>
+    </div>
+
+    <script>
+        const API_URL = 'http://localhost:8000';
+        let currentImage = null;
+        let cameraStream = null;
+
+        // Upload area functionality
+        const uploadArea = document.getElementById('uploadArea');
+        const fileInput = document.getElementById('fileInput');
+        const imagePreview = document.getElementById('imagePreview');
+        const identifyButton = document.getElementById('identifyButton');
+        const clearButton = document.getElementById('clearButton');
+        const results = document.getElementById('results');
+        const loading = document.getElementById('loading');
+        const errorMessage = document.getElementById('errorMessage');
+
+        uploadArea.addEventListener('click', () => fileInput.click());
+
+        uploadArea.addEventListener('dragover', (e) => {
+            e.preventDefault();
+            uploadArea.classList.add('drag-over');
+        });
+
+        uploadArea.addEventListener('dragleave', () => {
+            uploadArea.classList.remove('drag-over');
+        });
+
+        uploadArea.addEventListener('drop', (e) => {
+            e.preventDefault();
+            uploadArea.classList.remove('drag-over');
+            const files = e.dataTransfer.files;
+            if (files.length > 0) {
+                handleFileSelect(files[0]);
+            }
+        });
+
+        fileInput.addEventListener('change', (e) => {
+            if (e.target.files.length > 0) {
+                handleFileSelect(e.target.files[0]);
+            }
+        });
+
+        function handleFileSelect(file) {
+            if (!file.type.startsWith('image/')) {
+                showError('Por favor selecciona un archivo de imagen válido');
+                return;
+            }
+
+            currentImage = file;
+            const reader = new FileReader();
+            reader.onload = (e) => {
+                imagePreview.src = e.target.result;
+                imagePreview.style.display = 'block';
+                identifyButton.disabled = false;
+                clearButton.style.display = 'inline-block';
+                results.innerHTML = '';
+                errorMessage.style.display = 'none';
+            };
+            reader.readAsDataURL(file);
+        }
+
+        // Camera functionality
+        const cameraButton = document.getElementById('cameraButton');
+        const cameraVideo = document.getElementById('cameraVideo');
+        const cameraCanvas = document.getElementById('cameraCanvas');
+        const cameraControls = document.getElementById('cameraControls');
+        const captureButton = document.getElementById('captureButton');
+        const closeCameraButton = document.getElementById('closeCameraButton');
+
+        cameraButton.addEventListener('click', async () => {
+            try {
+                cameraStream = await navigator.mediaDevices.getUserMedia({ 
+                    video: { facingMode: 'environment' } 
+                });
+                cameraVideo.srcObject = cameraStream;
+                cameraVideo.style.display = 'block';
+                cameraControls.style.display = 'block';
+                cameraButton.style.display = 'none';
+            } catch (err) {
+                showError('No se pudo acceder a la cámara: ' + err.message);
+            }
+        });
+
+        captureButton.addEventListener('click', () => {
+            const context = cameraCanvas.getContext('2d');
+            cameraCanvas.width = cameraVideo.videoWidth;
+            cameraCanvas.height = cameraVideo.videoHeight;
+            context.drawImage(cameraVideo, 0, 0);
+            
+            cameraCanvas.toBlob((blob) => {
+                const file = new File([blob], 'camera-capture.jpg', { type: 'image/jpeg' });
+                handleFileSelect(file);
+                closeCamera();
+            }, 'image/jpeg');
+        });
+
+        closeCameraButton.addEventListener('click', closeCamera);
+
+        function closeCamera() {
+            if (cameraStream) {
+                cameraStream.getTracks().forEach(track => track.stop());
+                cameraStream = null;
+            }
+            cameraVideo.style.display = 'none';
+            cameraControls.style.display = 'none';
+            cameraButton.style.display = 'inline-block';
+        }
+
+        // Identify plant
+        identifyButton.addEventListener('click', async () => {
+            if (!currentImage) return;
+
+            loading.style.display = 'block';
+            results.innerHTML = '';
+            errorMessage.style.display = 'none';
+            identifyButton.disabled = true;
+
+            const formData = new FormData();
+            formData.append('file', currentImage);
+
+            try {
+                const response = await fetch(`${API_URL}/api/plant/identify`, {
+                    method: 'POST',
+                    body: formData
+                });
+
+                if (!response.ok) {
+                    throw new Error('Error en la respuesta del servidor');
+                }
+
+                const data = await response.json();
+                displayResults(data);
+            } catch (error) {
+                showError('Error al identificar la planta: ' + error.message);
+            } finally {
+                loading.style.display = 'none';
+                identifyButton.disabled = false;
+            }
+        });
+
+        function displayResults(data) {
+            results.innerHTML = '';
+
+            if (data.status === 'demo_mode') {
+                results.innerHTML += '<div style="background: #fff3cd; padding: 10px; border-radius: 5px; margin-bottom: 15px; color: #856404;">ℹ️ Modo de demostración: Mostrando resultados de ejemplo</div>';
+            }
+
+            data.predictions.forEach((pred, index) => {
+                const confidence = pred.confidence || 0;
+                const confidenceClass = confidence > 0.7 ? 'high' : confidence > 0.4 ? 'medium' : 'low';
+                
+                const resultDiv = document.createElement('div');
+                resultDiv.className = `result-item ${index === 0 ? 'rank-1' : ''}`;
+                
+                let observationsHtml = '';
+                if (pred.plant_info.observations) {
+                    observationsHtml = '<ul class="observations-list">';
+                    pred.plant_info.observations.forEach(obs => {
+                        observationsHtml += `<li>${obs}</li>`;
+                    });
+                    observationsHtml += '</ul>';
+                }
+
+                resultDiv.innerHTML = `
+                    <div class="result-header">
+                        <span class="plant-name">${index + 1}. ${pred.plant_name.replace(/_/g, ' ')}</span>
+                        <span class="confidence-badge ${confidenceClass}">${pred.confidence_percentage}</span>
+                    </div>
+                    <div class="plant-details">
+                        <div class="detail-row">
+                            <div class="detail-label">Nombre Científico:</div>
+                            <div class="detail-value">${pred.plant_info.scientific_name}</div>
+                        </div>
+                        <div class="detail-row">
+                            <div class="detail-label">Familia:</div>
+                            <div class="detail-value">${pred.plant_info.family}</div>
+                        </div>
+                        <div class="detail-row">
+                            <div class="detail-label">Tipo:</div>
+                            <div class="detail-value">${pred.plant_info.type}</div>
+                        </div>
+                        <div class="detail-row">
+                            <div class="detail-label">Tiempo de Crecimiento:</div>
+                            <div class="detail-value">${pred.plant_info.growth_time}</div>
+                        </div>
+                        <div class="detail-row">
+                            <div class="detail-label">pH Óptimo:</div>
+                            <div class="detail-value">${pred.plant_info.optimal_ph}</div>
+                        </div>
+                        <div class="detail-row">
+                            <div class="detail-label">EC Óptima:</div>
+                            <div class="detail-value">${pred.plant_info.optimal_ec}</div>
+                        </div>
+                        <div class="detail-row">
+                            <div class="detail-label">Luz Requerida:</div>
+                            <div class="detail-value">${pred.plant_info.light_requirements}</div>
+                        </div>
+                        <div class="detail-row">
+                            <div class="detail-label">Temperatura:</div>
+                            <div class="detail-value">${pred.plant_info.temperature}</div>
+                        </div>
+                        ${observationsHtml ? '<div class="detail-row"><div class="detail-label">Observaciones:</div><div class="detail-value">' + observationsHtml + '</div></div>' : ''}
+                        ${pred.plant_info.harvest_indicators ? '<div class="detail-row"><div class="detail-label">Indicadores de Cosecha:</div><div class="detail-value">' + pred.plant_info.harvest_indicators + '</div></div>' : ''}
+                    </div>
+                `;
+                
+                results.appendChild(resultDiv);
+            });
+        }
+
+        clearButton.addEventListener('click', () => {
+            currentImage = null;
+            fileInput.value = '';
+            imagePreview.style.display = 'none';
+            imagePreview.src = '';
+            identifyButton.disabled = true;
+            clearButton.style.display = 'none';
+            results.innerHTML = '';
+            errorMessage.style.display = 'none';
+        });
+
+        function showError(message) {
+            errorMessage.textContent = message;
+            errorMessage.style.display = 'block';
+        }
+
+        // Load species list
+        async function loadSpeciesList() {
+            try {
+                const response = await fetch(`${API_URL}/api/plant/species`);
+                const data = await response.json();
+                
+                const speciesList = document.getElementById('speciesList');
+                data.species.forEach(species => {
+                    const chip = document.createElement('div');
+                    chip.className = 'species-chip';
+                    chip.textContent = species.replace(/_/g, ' ');
+                    chip.title = 'Click para ver información detallada';
+                    chip.addEventListener('click', () => showSpeciesInfo(species));
+                    speciesList.appendChild(chip);
+                });
+            } catch (error) {
+                console.error('Error loading species list:', error);
+            }
+        }
+
+        async function showSpeciesInfo(species) {
+            try {
+                const response = await fetch(`${API_URL}/api/plant/info/${species}`);
+                const data = await response.json();
+                
+                results.innerHTML = '';
+                displayResults({
+                    status: 'success',
+                    predictions: [{
+                        rank: 1,
+                        plant_name: species,
+                        confidence: 1.0,
+                        confidence_percentage: '100%',
+                        plant_info: data.plant_info
+                    }]
+                });
+            } catch (error) {
+                showError('Error al cargar información de la especie');
+            }
+        }
+
+        // Load species on page load
+        loadSpeciesList();
+    </script>
+</body>
+</html>
